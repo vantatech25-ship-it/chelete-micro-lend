@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +28,7 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginFormContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const message = searchParams.get("message");
@@ -67,6 +67,89 @@ export default function LoginPage() {
     }
 
     return (
+        <Card className="w-full max-w-md shadow-2xl border-none glass rounded-3xl relative z-10 animate-fade-in-up">
+            <CardHeader className="space-y-1 text-center pb-8">
+                <div className="flex justify-center mb-4">
+                    <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 shadow-lg">
+                        <img 
+                            src="/images/chelete_gold_logo.png" 
+                            alt="Chelete Gold Logo" 
+                            className="h-full w-full object-contain rounded-xl bg-white"
+                        />
+                    </div>
+                </div>
+                <CardTitle className="text-3xl font-black tracking-tight text-primary italic">Welcome back</CardTitle>
+                <CardDescription className="text-slate-500 text-base">
+                    Log in to manage your loans
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {message && (
+                    <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
+                        <Mail className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <p className="text-sm text-primary font-medium">{message}</p>
+                    </div>
+                )}
+
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="name@example.com"
+                            {...form.register("email")}
+                            className={form.formState.errors.email ? "border-red-500" : ""}
+                        />
+                        {form.formState.errors.email && (
+                            <p className="text-xs text-red-500">{form.formState.errors.email.message}</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <Label htmlFor="password">Password</Label>
+                            <Link href="#" className="text-xs text-primary hover:underline font-bold">
+                                Forgot password?
+                            </Link>
+                        </div>
+                        <Input
+                            id="password"
+                            type="password"
+                            {...form.register("password")}
+                            className={`rounded-xl h-11 border-slate-200 focus:border-primary focus:ring-primary/20 transition-all ${form.formState.errors.password ? "border-red-500" : ""}`}
+                        />
+                        {form.formState.errors.password && (
+                            <p className="text-xs text-red-500">{form.formState.errors.password.message}</p>
+                        )}
+                    </div>
+
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 text-lg font-bold shadow-lg shadow-primary/20" disabled={isLoading}>
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                Logging in...
+                            </>
+                        ) : (
+                            "Log In"
+                        )}
+                    </Button>
+                </form>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4 pb-8">
+                <div className="text-sm text-center text-slate-500">
+                    Don&apos;t have an account?{" "}
+                    <Link href="/register" className="text-primary font-black hover:underline tracking-tight">
+                        Register now
+                    </Link>
+                </div>
+            </CardFooter>
+        </Card>
+    );
+}
+
+export default function LoginPage() {
+    return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
             {/* Background Flair Blobs */}
             <div className="absolute top-0 -left-4 w-72 h-72 bg-primary/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
@@ -76,84 +159,9 @@ export default function LoginPage() {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
             </Link>
 
-            <Card className="w-full max-w-md shadow-2xl border-none glass rounded-3xl relative z-10 animate-fade-in-up">
-                <CardHeader className="space-y-1 text-center pb-8">
-                    <div className="flex justify-center mb-4">
-                        <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 shadow-lg">
-                            <img 
-                                src="/images/chelete_gold_logo.png" 
-                                alt="Chelete Gold Logo" 
-                                className="h-full w-full object-contain rounded-xl bg-white"
-                            />
-                        </div>
-                    </div>
-                    <CardTitle className="text-3xl font-black tracking-tight text-primary italic">Welcome back</CardTitle>
-                    <CardDescription className="text-slate-500 text-base">
-                        Log in to manage your loans
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {message && (
-                        <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
-                            <Mail className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                            <p className="text-sm text-primary font-medium">{message}</p>
-                        </div>
-                    )}
-
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="name@example.com"
-                                {...form.register("email")}
-                                className={form.formState.errors.email ? "border-red-500" : ""}
-                            />
-                            {form.formState.errors.email && (
-                                <p className="text-xs text-red-500">{form.formState.errors.email.message}</p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <Label htmlFor="password">Password</Label>
-                                <Link href="#" className="text-xs text-primary hover:underline font-bold">
-                                    Forgot password?
-                                </Link>
-                            </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                {...form.register("password")}
-                                className={`rounded-xl h-11 border-slate-200 focus:border-primary focus:ring-primary/20 transition-all ${form.formState.errors.password ? "border-red-500" : ""}`}
-                            />
-                            {form.formState.errors.password && (
-                                <p className="text-xs text-red-500">{form.formState.errors.password.message}</p>
-                            )}
-                        </div>
-
-                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 text-lg font-bold shadow-lg shadow-primary/20" disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Logging in...
-                                </>
-                            ) : (
-                                "Log In"
-                            )}
-                        </Button>
-                    </form>
-                </CardContent>
-                <CardFooter className="flex flex-col space-y-4 pb-8">
-                    <div className="text-sm text-center text-slate-500">
-                        Don&apos;t have an account?{" "}
-                        <Link href="/register" className="text-primary font-black hover:underline tracking-tight">
-                            Register now
-                        </Link>
-                    </div>
-                </CardFooter>
-            </Card>
+            <Suspense fallback={<Card className="w-full max-w-md p-8 glass flex justify-center"><Loader2 className="animate-spin text-primary" /></Card>}>
+                <LoginFormContent />
+            </Suspense>
         </div>
     );
 }
